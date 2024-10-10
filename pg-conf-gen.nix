@@ -1,8 +1,7 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ lib, pkgs }:
 
 let
-  postgresModule = import ./postgresql-module.nix { inherit (pkgs) lib pkgs; };
-  inherit (pkgs.lib) concatStringsSep mapAttrsToList;
+  postgresModule = import ./postgresql-module.nix { inherit lib pkgs; };
   
   # Read the JSON configuration file
   jsonConfig = builtins.fromJSON (builtins.readFile ./postgres-config.json);
@@ -15,7 +14,7 @@ let
 in
   pkgs.runCommand "postgresql-config" {} ''
     mkdir -p $out
-    ${concatStringsSep "\n" (mapAttrsToList (name: path: 
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: path: 
       "cp ${path} $out/${name}"
     ) evaluatedConfig.configFiles)}
   ''
