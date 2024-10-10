@@ -3,25 +3,13 @@
 let
   postgresModule = import ./postgresql-module.nix { inherit (pkgs) lib pkgs; };
   inherit (pkgs.lib) concatStringsSep mapAttrsToList;
+  
+  # Read the JSON configuration file
+  jsonConfig = builtins.fromJSON (builtins.readFile ./postgres-config.json);
+  
   evaluatedConfig = (postgresModule {
     config = {
-      postgresql = {
-        settings = {
-          max_connections = 100;
-          shared_buffers = "128MB";
-          wal_level = "replica";
-          max_wal_senders = 10;
-          hot_standby = true;
-        };
-        authentication = [
-          "local all all trust"
-          "host all all 127.0.0.1/32 md5"
-        ];
-        # You can add identMap entries here if needed
-        # identMap = [
-        #   "map-name system-username postgres-username"
-        # ];
-      };
+      postgresql = jsonConfig;
     };
   }).config.postgresql;
 in
