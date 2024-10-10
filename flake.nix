@@ -13,8 +13,9 @@
         pgConfGen = pkgs.callPackage ./pg-conf-gen.nix {};
       in {
         packages = {
-          pgConfGen = pgConfGen;
+          pgConfGen = pgConfGen.build;
         };
+        apps.pgConfGen = flake-utils.lib.mkApp { drv = pgConfGen.run; };
       }
     );
 }
