@@ -11,10 +11,18 @@ let
       postgresql = jsonConfig;
     };
   }).config.postgresql;
-in
-  pkgs.runCommand "postgresql-config" {} ''
+
+  # Create the configuration files
+  configFiles = pkgs.runCommand "postgresql-config-files" {} ''
     mkdir -p $out
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: path: 
       "cp ${path} $out/${name}"
     ) evaluatedConfig.configFiles)}
+  '';
+
+in
+  pkgs.writeShellScriptBin "postgresql-config" ''
+    mkdir -p ./postgres-config
+    cp -r ${configFiles}/* ./postgres-config/
+    echo "PostgreSQL configuration files have been generated in ./postgres-config/"
   ''
